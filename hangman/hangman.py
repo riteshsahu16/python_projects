@@ -1,12 +1,31 @@
 import string
 from words import choose_word
 from images import IMAGES
+import random
 '''
 Important instruction
 * function and variable name snake_case -> is_prime
 * contant variable upper case PI
+
 '''
 
+def get_hint(secret_word, guessed):
+    char = ''
+    while True:
+        x = random.randint(0,len(secret_word)-1)
+        if secret_word[x] not in guessed.replace('_', ''):
+            char = secret_word[x]
+            break
+    return char
+
+def is_valid(input):
+    if (input == 'hint'):
+        return True
+    if (len(input)>1 or len(input)<1):
+        return False
+
+    if ord(input)<=ord('z') and ord(input) >= ord('a'):
+        return True
 def is_word_guessed(secret_word, letters_guessed):
     '''
     secret_word: word guess by the user
@@ -88,15 +107,27 @@ def hangman(secret_word):
     max_tries = len(set(secret_word))
     wrong_count = 0
     guessed = ""
-
+    life_rem = 8
+    hint_available = True
     while wrong_count < len(IMAGES):
         available_letters = get_available_letters(letters_guessed)
         print("Available letters: {} ".format(available_letters))
         print()
         if(len(guessed)) > len(secret_word) :
             break
+        print("life remaining : ", life_rem)
+        print(f"hint-option available : {hint_available}")
         guess = input("Please guess a letter: ")
         letter = guess.lower()
+
+        print("guessed $", guessed.replace('_', ''))
+        if letter == 'hint':
+            print("*Hint : ",get_hint(secret_word,guessed))
+            hint_available = False
+        
+        if not is_valid(letter):
+            print("* * * INVALID input * * *")
+            continue
 
         if letter not in available_letters:
             print(letter," is not available !!!")
@@ -117,6 +148,7 @@ def hangman(secret_word):
             letters_guessed.append(letter)
             print(IMAGES[wrong_count])
             wrong_count += 1
+            life_rem -= 1
             print("")
         if(guessed.replace('_', '') == secret_word):
             break
